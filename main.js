@@ -1,5 +1,6 @@
 const Router = require('./router.js');
 const Inbox = require('./Inbox.js');
+const Sent = require('./sent.js')
 
 window.addEventListener('DOMContentLoaded', () => {
   console.log('works');
@@ -15,5 +16,6 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 const routes = {
-  inbox: Inbox
+  inbox: Inbox,
+  sent: Sent
 };
