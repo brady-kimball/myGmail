@@ -72,7 +72,8 @@
 
 const Router = __webpack_require__(1);
 const Inbox = __webpack_require__(3);
-const Sent = __webpack_require__(5)
+const Sent = __webpack_require__(5);
+const Compose = __webpack_require__(6);
 
 window.addEventListener('DOMContentLoaded', () => {
   console.log('works');
@@ -89,7 +90,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
 const routes = {
   inbox: Inbox,
-  sent: Sent
+  sent: Sent,
+  compose: Compose
 };
 
 
@@ -186,9 +188,32 @@ const MessageStore = {
 
   getSentMessages: function() {
     return messages.sent;
+  },
+
+  getMessageDraft: function() {
+    return messageDraft;
+  },
+
+  updateDraftField: function(field, value) {
+    messageDraft[field] = value;
+  },
+
+  sendDraft: function() {
+    messages.sent.push(messageDraft);
+    messageDraft = new Message();
   }
 };
 
+class Message{
+  constructor(from="", to="", subject="", body="") {
+    this.from = from;
+    this.to = to;
+    this.subject = subject;
+    this.body= body;
+  }
+}
+
+let messageDraft = new Message();
 
 module.exports = MessageStore;
 
@@ -222,6 +247,56 @@ const Sent = {
 };
 
 module.exports = Sent;
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const MessageStore = __webpack_require__(4);
+
+const Compose = {
+  render: function() {
+    let div = document.createElement("div");
+    div.className = "new-message";
+    div.innerHTML = this.renderForm();
+    div.addEventListener("change", (event) => {
+      let field = event.target;
+      MessageStore.updateDraftField(field.name, field.value);
+    });
+
+    div.addEventListener("submit", (event) => {
+      event.preventDefault();
+      MessageStore.sendDraft();
+      window.location.hash = "inbox";
+    });
+    return div;
+  },
+
+  renderForm: function () {
+    let draft = MessageStore.getMessageDraft();
+    let html = `
+    <p class="new-message-header">New Message</p>
+
+    <form class="compose-form">
+      <input placeholder="Recipient"
+              name="to"
+              type="text"
+              value=${draft.to}>
+      <input placeholder="Subject"
+              name="subject"
+              type="text"
+              value=${draft.subject}>
+      <textarea name="body" rows=20>${draft.body}</textarea>
+      <button type="submit"
+              class="btn btn-primary submit-message">Send</button>
+    </form>
+    `;
+    return html;
+  }
+};
+
+module.exports = Compose;
 
 
 /***/ })
